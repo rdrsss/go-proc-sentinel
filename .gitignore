@@ -24,4 +24,9 @@ _testmain.go
 *.test
 *.prof
 
+# vim swap viles
+*.swp
+*.swo
+
+# source dir bin
 src/src
