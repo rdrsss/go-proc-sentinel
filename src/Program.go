@@ -7,9 +7,7 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
-	"strconv"
 	"time"
 )
 
@@ -57,28 +55,4 @@ func (p *Program) StartProgram() error {
 // --------------------------------------------------------------
 func (p *Program) StopProgram() error {
 	return nil
-}
-
-// --------------------------------------------------------------
-func (p *Program) IsProgramRunning() (bool, error) {
-	// Get Program pid
-	p.checkPID(p.cmd.Process.Pid)
-
-	return true, nil
-}
-
-// --------------------------------------------------------------
-func (p Program) checkPID(pid int) (bool, error) {
-	// *nix only
-	buf, err := exec.Command("kill", "-s", "0", strconv.Itoa(pid)).CombinedOutput()
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-
-	if string(buf) != "" {
-		log.Println(string(buf))
-	}
-
-	return true, nil
 }
