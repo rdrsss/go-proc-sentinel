@@ -11,6 +11,20 @@ import (
 
 // --------------------------------------------------------------
 func Test_SingleProgramStart(t *testing.T) {
+	// Setup simple program
+	prog := Program{
+		Path: "date",
+	}
+
+	if init_err := prog.InitProgram(); init_err != nil {
+		t.Error(init_err)
+	}
+
+	if start_err := prog.StartProgram(); start_err != nil {
+		t.Error(start_err)
+	}
+
+	// Pipe stdout
 
 }
 
