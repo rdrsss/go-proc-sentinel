@@ -22,6 +22,11 @@ type ProcessMonitor struct {
 }
 
 // --------------------------------------------------------------
+func (m *ProcessMonitor) Initialize() {
+	m.pidMap = make(map[int]chan int)
+}
+
+// --------------------------------------------------------------
 func (m *ProcessMonitor) Start() {
 	atomic.SwapInt32(&m.running, 1)
 	if m.pidMap == nil {

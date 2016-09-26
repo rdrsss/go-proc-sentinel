@@ -9,8 +9,14 @@ import (
 	"log"
 )
 
+var (
+	pm ProcessMonitor
+)
+
 // --------------------------------------------------------------
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	pm.Initialize()
 
 }
