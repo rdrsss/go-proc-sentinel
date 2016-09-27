@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"syscall"
 	"time"
 )
 
@@ -16,7 +17,7 @@ type Program struct {
 	Path string
 	Args []string
 
-	cmd       *exec.Cmd
+	Cmd       *exec.Cmd
 	startTime time.Time
 }
 
@@ -27,9 +28,12 @@ func (p *Program) InitProgram() error {
 		return err
 	}
 	// Setup Comamnd
-	p.cmd = exec.Command(path, p.Args...)
-	// Append to command map
-	//p. = append(p.CmdMap, cmd)
+	p.Cmd = exec.Command(path, p.Args...)
+	// Set to different process group than parent.
+	pattr := syscall.SysProcAttr{
+		Setpgid: true,
+	}
+	p.Cmd.SysProcAttr = &pattr
 
 	return nil
 }
@@ -37,18 +41,14 @@ func (p *Program) InitProgram() error {
 // --------------------------------------------------------------
 func (p *Program) StartProgram() error {
 	go func() {
-		p.cmd.Wait()
+		p.Cmd.Wait()
 		fmt.Println("Program exited ")
 	}()
 
-	if err := p.cmd.Start(); err != nil {
+	if err := p.Cmd.Start(); err != nil {
 		return err
 	}
-	/*
-		for _, cmd := range p.CmdMap {
-			cmd.Start()
-		}
-	*/
+
 	return nil
 }
 
