@@ -8,8 +8,29 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 )
+
+/*
+ * Create simple py program to test
+ */
+var py_prog string = `
+import time
+if __name__ == '__main__':
+	for x in range(0, 10):
+		print(x)
+		time.sleep(0.05)
+`
+
+func CreatePyProgram() error {
+	return ioutil.WriteFile("prog0.py", []byte(py_prog), 0644)
+}
+
+func DeletePyProgram() error {
+	return os.Remove("prog0.py")
+
+}
 
 // --------------------------------------------------------------
 func Test_SingleProgramStart(t *testing.T) {
@@ -38,6 +59,20 @@ func Test_SingleProgramStart(t *testing.T) {
 	}
 
 	log.Println(string(buf))
+
+}
+
+func Test_PythonProgram(t *testing.T) {
+	// Create Progra
+	if create_err := CreatePyProgram(); create_err != nil {
+		t.Error(create_err)
+	}
+	// Run Program
+
+	// Delete Program
+	if delete_err := DeletePyProgram(); delete_err != nil {
+		t.Error(delete_err)
+	}
 }
 
 // --------------------------------------------------------------
