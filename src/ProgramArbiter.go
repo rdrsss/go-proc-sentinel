@@ -95,17 +95,24 @@ func (m *ProgramArbiter) IsRunning() bool {
 func (pm *ProcessMap) AddProgram(p *Program) {
 	pm.Lock()
 	pm.programs[p] = true
-	pm.pidMap[p.Cmd.Process.Pid] = p
+	pm.pidMap[p.LastPid] = p
 	pm.Unlock()
 }
 
 // Remove program from process map
 func (pm *ProcessMap) RemoveProgram(p *Program) {
 	pm.Lock()
+	if _, ok := pm.programs[p]; ok {
+		delete(pm.programs, p)
+	}
+
+	if _, ok := pm.pidMap[p.LastPid]; ok {
+		delete(pm.pidMap, p.LastPid)
+	}
 	pm.Unlock()
 }
 
-// --------------------------------------------------------------
+// Check with the os if a pid is running
 func checkPID(pid int) (bool, error) {
 	// *nix only
 	buf, err := exec.Command("kill", "-s", "0", strconv.Itoa(pid)).CombinedOutput()

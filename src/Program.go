@@ -6,7 +6,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 	"syscall"
 	"time"
@@ -42,10 +41,12 @@ func (p *Program) Init() error {
 
 // Start the program.
 func (p *Program) Start() error {
-	go func() {
-		p.Cmd.Wait()
-		fmt.Println("Program exited ")
-	}()
+	/*
+		go func() {
+			p.Cmd.Wait()
+			fmt.Println("Program exited ")
+		}()
+	*/
 
 	if err := p.Cmd.Start(); err != nil {
 		return err
