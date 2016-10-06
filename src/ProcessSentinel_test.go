@@ -62,17 +62,47 @@ func Test_SingleProgramStart(t *testing.T) {
 
 }
 
+// --------------------------------------------------------------
 func Test_PythonProgram(t *testing.T) {
-	// Create Progra
+	// Create python script
 	if create_err := CreatePyProgram(); create_err != nil {
 		t.Error(create_err)
 	}
-	// Run Program
+	prog := Program{
+		Path: "python",
+		Args: []string{"prog0.py"},
+	}
+	// Initialize program
+	if init_err := prog.InitProgram(); init_err != nil {
+		t.Error(init_err)
+	}
 
-	// Delete Program
+	// Pipe stdout
+	stdout, stdout_err := prog.Cmd.StdoutPipe()
+	if stdout_err != nil {
+		t.Error(stdout_err)
+	}
+
+	if start_err := prog.StartProgram(); start_err != nil {
+		t.Error(start_err)
+	}
+
+	buf, buf_err := ioutil.ReadAll(stdout)
+	if buf_err != nil {
+		t.Error(buf_err)
+	}
+
+	log.Println(string(buf))
+
+	// Delete python script
 	if delete_err := DeletePyProgram(); delete_err != nil {
 		t.Error(delete_err)
 	}
+}
+
+// --------------------------------------------------------------
+func Test_DetectCrash(t *testing.T) {
+
 }
 
 // --------------------------------------------------------------

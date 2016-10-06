@@ -21,6 +21,7 @@ type Program struct {
 	startTime time.Time
 }
 
+// --------------------------------------------------------------
 func (p *Program) InitProgram() error {
 	// Validate Path
 	path, err := exec.LookPath(p.Path)
