@@ -13,13 +13,13 @@ import (
 	"testing"
 )
 
-// Define program names here, used to delete later
+// Define program names here, used to delete later.
 var scripts = [...]string{
 	"prog0.py",
 	"prog1.py"}
 
 /*
- * Create simple py program to test
+ * Create simple py program to test.
  */
 var py_prog string = `
 import time
@@ -74,7 +74,7 @@ func CreatePythonPrograms() error {
 	return nil
 }
 
-// Delete pyhton programs created earlier for test
+// Delete pyhton programs created earlier for test.
 func DeletePythonPrograms() {
 	for _, v := range scripts {
 		if exists, ferr := fileExists(v); exists == true {
@@ -88,7 +88,7 @@ func DeletePythonPrograms() {
 	}
 }
 
-// --------------------------------------------------------------
+// Quick program struct test with date program, standard to *nix.
 func Test_SingleProgramStart(t *testing.T) {
 	// Setup simple program
 	prog := Program{
@@ -118,23 +118,23 @@ func Test_SingleProgramStart(t *testing.T) {
 
 }
 
-// Test a basic python program
+// Test a basic python program.
 func Test_PythonProgram(t *testing.T) {
-	// Define program
+	// Define program.
 	prog := Program{
 		Path: "python",
 		Args: []string{"prog0.py"},
 	}
-	// Initialize program
+	// Initialize program.
 	if init_err := prog.InitProgram(); init_err != nil {
 		t.Error(init_err)
 	}
-	// Pipe stdout and stderr
+	// Pipe stdout and stderr.
 	stdout, stdout_err := prog.Cmd.StdoutPipe()
 	if stdout_err != nil {
 		t.Error(stdout_err)
 	}
-	// Start running the program
+	// Start running the program.
 	if start_err := prog.StartProgram(); start_err != nil {
 		t.Error(start_err)
 	}
@@ -147,17 +147,31 @@ func Test_PythonProgram(t *testing.T) {
 	log.Println(string(buf))
 }
 
-// Run script to purposefully crash, testing crash detection logic
+// Run script to purposefully crash, testing crash detection logic.
 func Test_DetectCrash(t *testing.T) {
+	// Define program.
+	prog := Program{
+		Path: "python",
+		Args: []string{"prog1.py"},
+	}
 
+	var pm ProcessMonitor
+	// Start monitor.
+	pm.Initialize()
+	// Insert program into monitor.
+	// Start program.
+	pm.Start()
+	// Detect crash.
+	// Stop program.
+	pm.Stop()
 }
 
-// Setup scripts to be run
+// Setup scripts to be run.
 func TestMain(m *testing.M) {
-	// Create test programs to use with the process sentinel
+	// Create test programs to use with the process sentinel.
 	CreatePythonPrograms()
-	// Run tests
+	// Run tests.
 	m.Run()
-	// Delete test programs
+	// Delete test programs.
 	DeletePythonPrograms()
 }

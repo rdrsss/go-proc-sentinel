@@ -10,13 +10,15 @@ import (
 )
 
 var (
-	pm ProcessMonitor
+	pa ProgramArbiter
 )
 
 // --------------------------------------------------------------
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	pm.Initialize()
-
+	pa.Initialize()
+	pa.Start()
+	// Main loop
+	pa.Stop()
 }
