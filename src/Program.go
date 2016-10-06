@@ -11,6 +11,10 @@ import (
 	"time"
 )
 
+/*
+ * Program defines meta data around a
+ * given cmd and process.
+ */
 type Program struct {
 	ID      string
 	Path    string
