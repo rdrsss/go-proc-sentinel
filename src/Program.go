@@ -13,16 +13,17 @@ import (
 )
 
 type Program struct {
-	ID   string
-	Path string
-	Args []string
+	ID      string
+	Path    string
+	Args    []string
+	LastPid int // Last PID assigned
 
 	Cmd       *exec.Cmd
 	startTime time.Time
 }
 
-// --------------------------------------------------------------
-func (p *Program) InitProgram() error {
+// Initialize cmd.
+func (p *Program) Init() error {
 	// Validate Path
 	path, err := exec.LookPath(p.Path)
 	if err != nil {
@@ -39,8 +40,8 @@ func (p *Program) InitProgram() error {
 	return nil
 }
 
-// --------------------------------------------------------------
-func (p *Program) StartProgram() error {
+// Start the program.
+func (p *Program) Start() error {
 	go func() {
 		p.Cmd.Wait()
 		fmt.Println("Program exited ")
@@ -53,7 +54,8 @@ func (p *Program) StartProgram() error {
 	return nil
 }
 
-// --------------------------------------------------------------
-func (p *Program) StopProgram() error {
+// Stop the program.
+func (p *Program) Stop() error {
+	// TODO :: this
 	return nil
 }

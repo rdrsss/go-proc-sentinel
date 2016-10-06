@@ -6,6 +6,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"strconv"
@@ -14,6 +15,9 @@ import (
 	"time"
 )
 
+/*
+ * Process map, holds indexes for quick lookup to Program ptr
+ */
 type ProcessMap struct {
 	pidMap   map[int]*Program  // Pid : Program ptr
 	programs map[*Program]bool // Program ptr : Running status
@@ -26,7 +30,6 @@ type ProcessMap struct {
 type ProgramArbiter struct {
 	running    int32
 	processMap ProcessMap
-	//sync.Mutex
 }
 
 // Initialize the process monitor.
@@ -40,12 +43,10 @@ func (m *ProgramArbiter) Start() {
 	// Spin off arbiter go routine
 	go func() {
 		for m.IsRunning() {
-			// TODO ::
-			// Check if each process is running
-			// If not running
-			// 	- write on associated channel
-			//	- remove from pid map
-			// Sleep for 100 ms
+			// Check if pids are running
+			// - return slice of pids that have exited
+			// For pids that have exited check settings for restart
+
 			time.Sleep(100 * time.Millisecond)
 		}
 	}()
@@ -57,8 +58,29 @@ func (m *ProgramArbiter) Stop() {
 }
 
 // Add a program to the process Monitor
-func (m *ProgramArbiter) AddProgram(p *Program) {
-
+func (m *ProgramArbiter) AddProgram(p *Program) error {
+	if p == nil {
+		return fmt.Errorf("Passed in nil program")
+	}
+	// Initialize Program
+	if err := p.Init(); err != nil {
+		log.Println("Failed to initialize program: ", err)
+		return err
+	}
+	// Start Program
+	if err := p.Start(); err != nil {
+		log.Println("Failed to start program: ", err)
+		return err
+	}
+	// Validate process has started
+	if p.Cmd.Process == nil {
+		return fmt.Errorf("Program with nil process")
+	}
+	// Set fields on program
+	p.LastPid = p.Cmd.Process.Pid
+	// Insert into Process Map
+	m.processMap.AddProgram(p)
+	return nil
 }
 
 // Check if Arbiter is running.
@@ -67,6 +89,20 @@ func (m *ProgramArbiter) IsRunning() bool {
 		return true
 	}
 	return false
+}
+
+// Add program to process map
+func (pm *ProcessMap) AddProgram(p *Program) {
+	pm.Lock()
+	pm.programs[p] = true
+	pm.pidMap[p.Cmd.Process.Pid] = p
+	pm.Unlock()
+}
+
+// Remove program from process map
+func (pm *ProcessMap) RemoveProgram(p *Program) {
+	pm.Lock()
+	pm.Unlock()
 }
 
 // --------------------------------------------------------------
@@ -81,6 +117,5 @@ func checkPID(pid int) (bool, error) {
 	if string(buf) != "" {
 		log.Println(string(buf))
 	}
-
 	return true, nil
 }

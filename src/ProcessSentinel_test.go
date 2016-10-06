@@ -95,7 +95,7 @@ func Test_SingleProgramStart(t *testing.T) {
 		Path: "date",
 	}
 	// Initialize program
-	if init_err := prog.InitProgram(); init_err != nil {
+	if init_err := prog.Init(); init_err != nil {
 		t.Error(init_err)
 	}
 
@@ -105,7 +105,7 @@ func Test_SingleProgramStart(t *testing.T) {
 		t.Error(stdout_err)
 	}
 
-	if start_err := prog.StartProgram(); start_err != nil {
+	if start_err := prog.Start(); start_err != nil {
 		t.Error(start_err)
 	}
 
@@ -126,7 +126,7 @@ func Test_PythonProgram(t *testing.T) {
 		Args: []string{"prog0.py"},
 	}
 	// Initialize program.
-	if init_err := prog.InitProgram(); init_err != nil {
+	if init_err := prog.Init(); init_err != nil {
 		t.Error(init_err)
 	}
 	// Pipe stdout and stderr.
@@ -135,7 +135,7 @@ func Test_PythonProgram(t *testing.T) {
 		t.Error(stdout_err)
 	}
 	// Start running the program.
-	if start_err := prog.StartProgram(); start_err != nil {
+	if start_err := prog.Start(); start_err != nil {
 		t.Error(start_err)
 	}
 
