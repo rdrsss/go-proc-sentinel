@@ -1,6 +1,7 @@
 /*
  * @file 	: ProcessSentinel_test.go
- * @brief 	: Tests
+ * @brief 	: Tests surrounding the functionality of the Process Sentinel.
+ *			  Tests require python 2.7.x, as python scripts are generated.
  * @author 	: Manuel A. Rodriguez (manuel.rdrs@gmail.com)
  */
 package main
@@ -11,6 +12,11 @@ import (
 	"os"
 	"testing"
 )
+
+// Define program names here, used to delete later
+var scripts = [...]string{
+	"prog0.py",
+	"prog1.py"}
 
 /*
  * Create simple py program to test
@@ -23,13 +29,63 @@ if __name__ == '__main__':
 		time.sleep(0.05)
 `
 
-func CreatePyProgram() error {
-	return ioutil.WriteFile("prog0.py", []byte(py_prog), 0644)
+/*
+ * Create a simple python program to test a crash.
+ */
+var py_crash_prog string = `
+import time, ctypes
+if __name__ == '__main__':
+	# Start Program
+	for x in range(0, 30):
+		print(x)
+		time.sleep(0.05)
+	# Crash Program
+	i = ctypes.c_char('a')
+	j = ctypes.pointer(i)
+	c = 0
+	while True:
+		j[c] = 'a'
+		c += 1
+	j
+`
+
+// Check if a file exists.
+func fileExists(filepath string) (bool, error) {
+	if _, err := os.Stat(filepath); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		} else {
+			// We have another error, but, file exists.
+			return true, err
+		}
+	}
+	return true, nil
 }
 
-func DeletePyProgram() error {
-	return os.Remove("prog0.py")
+// Create slew of test python programs and write them out to files.
+func CreatePythonPrograms() error {
+	if err := ioutil.WriteFile("prog0.py", []byte(py_prog), 0644); err != nil {
+		return err
+	}
 
+	if err := ioutil.WriteFile("prog1.py", []byte(py_crash_prog), 0664); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Delete pyhton programs created earlier for test
+func DeletePythonPrograms() {
+	for _, v := range scripts {
+		if exists, ferr := fileExists(v); exists == true {
+			if ferr != nil {
+				log.Println(ferr)
+			}
+			os.Remove(v)
+		} else {
+			log.Println(ferr)
+		}
+	}
 }
 
 // --------------------------------------------------------------
@@ -62,12 +118,9 @@ func Test_SingleProgramStart(t *testing.T) {
 
 }
 
-// --------------------------------------------------------------
+// Test a basic python program
 func Test_PythonProgram(t *testing.T) {
-	// Create python script
-	if create_err := CreatePyProgram(); create_err != nil {
-		t.Error(create_err)
-	}
+	// Define program
 	prog := Program{
 		Path: "python",
 		Args: []string{"prog0.py"},
@@ -76,13 +129,12 @@ func Test_PythonProgram(t *testing.T) {
 	if init_err := prog.InitProgram(); init_err != nil {
 		t.Error(init_err)
 	}
-
-	// Pipe stdout
+	// Pipe stdout and stderr
 	stdout, stdout_err := prog.Cmd.StdoutPipe()
 	if stdout_err != nil {
 		t.Error(stdout_err)
 	}
-
+	// Start running the program
 	if start_err := prog.StartProgram(); start_err != nil {
 		t.Error(start_err)
 	}
@@ -93,19 +145,19 @@ func Test_PythonProgram(t *testing.T) {
 	}
 
 	log.Println(string(buf))
-
-	// Delete python script
-	if delete_err := DeletePyProgram(); delete_err != nil {
-		t.Error(delete_err)
-	}
 }
 
-// --------------------------------------------------------------
+// Run script to purposefully crash, testing crash detection logic
 func Test_DetectCrash(t *testing.T) {
 
 }
 
-// --------------------------------------------------------------
+// Setup scripts to be run
 func TestMain(m *testing.M) {
+	// Create test programs to use with the process sentinel
+	CreatePythonPrograms()
+	// Run tests
 	m.Run()
+	// Delete test programs
+	DeletePythonPrograms()
 }
