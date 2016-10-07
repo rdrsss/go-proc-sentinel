@@ -26,10 +26,10 @@ const (
  */
 type Program struct {
 	ID      string
-	Path    string
-	Args    []string
-	LastPid int // Last PID assigned
-	State   int // Program states
+	Path    string   // Path to executable, or bin from /bin
+	Args    []string // args to pass to bin
+	LastPid int      // Last PID assigned
+	State   int      // Program states
 
 	Cmd       *exec.Cmd
 	startTime time.Time
