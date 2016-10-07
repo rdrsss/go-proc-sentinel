@@ -17,7 +17,7 @@ var (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	pa.Initialize()
+	pa.Init()
 	pa.Start()
 	// Main loop
 	pa.Stop()

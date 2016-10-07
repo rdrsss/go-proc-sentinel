@@ -24,8 +24,15 @@ type ProcessMap struct {
 	sync.Mutex
 }
 
+func (pm *ProcessMap) Init() {
+	pm.pidMap = make(map[int]*Program)
+	pm.programs = make(map[*Program]bool)
+}
+
 /*
- * Process monitor keeps track of running programs
+ * Program arbiter periodically checks to make sure
+ * all programs are running. Restarting them if they are
+ * configured as such.
  */
 type ProgramArbiter struct {
 	running    int32
@@ -33,7 +40,8 @@ type ProgramArbiter struct {
 }
 
 // Initialize the process monitor.
-func (m *ProgramArbiter) Initialize() {
+func (m *ProgramArbiter) Init() {
+	m.processMap.Init()
 }
 
 // Start monitoring processes.
@@ -57,11 +65,10 @@ func (m *ProgramArbiter) Stop() {
 	atomic.SwapInt32(&m.running, 0)
 }
 
-// Add a program to the process Monitor
-func (m *ProgramArbiter) AddProgram(p *Program) error {
-	if p == nil {
-		return fmt.Errorf("Passed in nil program")
-	}
+// Add a program to the process Monitor.
+// Makes a copy of a program, then initializes it internally and from here on out
+// a ptr is used.
+func (m *ProgramArbiter) AddProgram(p Program) error {
 	// Initialize Program
 	if err := p.Init(); err != nil {
 		log.Println("Failed to initialize program: ", err)
@@ -76,10 +83,12 @@ func (m *ProgramArbiter) AddProgram(p *Program) error {
 	if p.Cmd.Process == nil {
 		return fmt.Errorf("Program with nil process")
 	}
+	log.Println("Program started: ", p)
 	// Set fields on program
 	p.LastPid = p.Cmd.Process.Pid
+	p.State = ProgramRunning
 	// Insert into Process Map
-	m.processMap.AddProgram(p)
+	m.processMap.AddProgram(&p)
 	return nil
 }
 

@@ -12,6 +12,15 @@ import (
 )
 
 /*
+ * Program states
+ */
+const (
+	ProgramStopped = iota
+	ProgramRunning
+	ProgramExited
+)
+
+/*
  * Program defines meta data around a
  * given cmd and process.
  */
@@ -20,6 +29,7 @@ type Program struct {
 	Path    string
 	Args    []string
 	LastPid int // Last PID assigned
+	State   int // Program states
 
 	Cmd       *exec.Cmd
 	startTime time.Time

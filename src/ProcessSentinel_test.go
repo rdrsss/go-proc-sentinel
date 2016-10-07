@@ -155,15 +155,15 @@ func Test_DetectCrash(t *testing.T) {
 		Args: []string{"prog1.py"},
 	}
 
-	var pm ProcessMonitor
+	var pa ProgramArbiter
 	// Start monitor.
-	pm.Initialize()
+	pa.Init()
+	pa.Start()
 	// Insert program into monitor.
-	// Start program.
-	pm.Start()
+	pa.AddProgram(prog)
 	// Detect crash.
 	// Stop program.
-	pm.Stop()
+	pa.Stop()
 }
 
 // Setup scripts to be run.
