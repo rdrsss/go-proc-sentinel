@@ -67,6 +67,7 @@ func (a *ProgramArbiter) Start() {
 	go func() {
 		for a.IsRunning() {
 			// Check if pids are running
+
 			// - return slice of pids that have exited
 			// For pids that have exited check settings for restart
 

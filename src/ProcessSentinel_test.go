@@ -36,10 +36,12 @@ var py_crash_prog string = `
 import time, ctypes
 if __name__ == '__main__':
 	# Start Program
+	print ' lets try to crash '
 	for x in range(0, 30):
 		print(x)
 		time.sleep(0.05)
 	# Crash Program
+	print ' crash program '
 	i = ctypes.c_char('a')
 	j = ctypes.pointer(i)
 	c = 0
@@ -47,6 +49,7 @@ if __name__ == '__main__':
 		j[c] = 'a'
 		c += 1
 	j
+	print 'fin'
 `
 
 // Check if a file exists.
